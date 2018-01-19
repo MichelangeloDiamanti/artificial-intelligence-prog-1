@@ -51,6 +51,3 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
-
-gamecontroller-gui.jar
-simplegamecontroller.jar
