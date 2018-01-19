@@ -58,7 +58,10 @@ public class EnvironmentState {
 		
 		// check if moving the robot keeps it inside the grid
 		if(nextLocationOfTheRobot.x <= Environment.widthOfTheGrid && 
-			nextLocationOfTheRobot.y <= Environment.heightOfTheGrid) {
+			nextLocationOfTheRobot.y <= Environment.heightOfTheGrid &&
+			nextLocationOfTheRobot.x >= 0 && 
+			nextLocationOfTheRobot.y >= 0
+			) {
 			
 			// check if moving the robot will make it bump into an obstacle
 			if(Environment.locationOfObstacles.contains(nextLocationOfTheRobot) == false)
@@ -97,7 +100,7 @@ public class EnvironmentState {
 		boolean canTurnOff = false;
 		// if robot is ON, there is no dirt around and robot is at home location
 		if( statusOfTheRobot == true && locationOfDirts.isEmpty() && 
-			locationOfTheRobot == Environment.homeLocation) 
+			locationOfTheRobot.equals(Environment.homeLocation)) 
 			canTurnOff = true;
 		return canTurnOff;
 	}
