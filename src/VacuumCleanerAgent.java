@@ -1,49 +1,141 @@
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VacuumCleanerAgent implements Agent{
+@SuppressWarnings("unused")
+public class VacuumCleanerAgent implements Agent
+{
 
 	/*
-		init(Collection<String> percepts) is called once before you have to select the first action. Use it to find a plan. Store the plan and just execute it step by step in nextAction.
+	 * init(Collection<String> percepts) is called once before you have to select
+	 * the first action. Use it to find a plan. Store the plan and just execute it
+	 * step by step in nextAction.
 	 */
+	private static String OS = System.getProperty("os.name").toLowerCase();
 
-	public void init(Collection<String> percepts) {
+	private Coordinate locationOfTheRobot;
+	private Orientation orientationOfTheRobot;
+	private List<Coordinate> locationOfDirts = new ArrayList<Coordinate>();
+	private boolean statusOfTheRobot;
+	
+	private EnvironmentState environmentState;
+
+	public void init(Collection<String> percepts)
+	{
 		/*
-			Possible percepts are:
-			- "(SIZE x y)" denoting the size of the environment, where x,y are integers
-			- "(HOME x y)" with x,y >= 1 denoting the initial position of the robot
-			- "(ORIENTATION o)" with o in {"NORTH", "SOUTH", "EAST", "WEST"} denoting the initial orientation of the robot
-			- "(AT o x y)" with o being "DIRT" or "OBSTACLE" denoting the position of a dirt or an obstacle
-			Moving north increases the y coordinate and moving east increases the x coordinate of the robots position.
-			The robot is turned off initially, so don't forget to turn it on.
-		*/
+		 * Possible percepts are: - "(SIZE x y)" denoting the size of the environment,
+		 * where x,y are integers - "(HOME x y)" with x,y >= 1 denoting the initial
+		 * position of the robot - "(ORIENTATION o)" with o in {"NORTH", "SOUTH",
+		 * "EAST", "WEST"} denoting the initial orientation of the robot - "(AT o x y)"
+		 * with o being "DIRT" or "OBSTACLE" denoting the position of a dirt or an
+		 * obstacle Moving north increases the y coordinate and moving east increases
+		 * the x coordinate of the robots position. The robot is turned off initially,
+		 * so don't forget to turn it on.
+		 */
 		Pattern perceptNamePattern = Pattern.compile("\\(\\s*([^\\s]+).*");
-		for (String percept:percepts) {
+		for (String percept : percepts)
+		{
 			Matcher perceptNameMatcher = perceptNamePattern.matcher(percept);
-			if (perceptNameMatcher.matches()) {
+			if (perceptNameMatcher.matches())
+			{
 				String perceptName = perceptNameMatcher.group(1);
-				if (perceptName.equals("HOME")) {
+				if (perceptName.equals("HOME"))
+				{
 					Matcher m = Pattern.compile("\\(\\s*HOME\\s+([0-9]+)\\s+([0-9]+)\\s*\\)").matcher(percept);
-					if (m.matches()) {
+					if (m.matches())
+					{
 						System.out.println("robot is at " + m.group(1) + "," + m.group(2));
+						Environment.homeLocation = new Coordinate(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+						locationOfTheRobot = Environment.homeLocation.clone();
 					}
-				} else {
-					System.out.println("other percept:" + percept);
 				}
-			} else {
+				else if (perceptName.equals("ORIENTATION"))
+				{
+					Matcher m = Pattern.compile("\\(\\s*ORIENTATION\\s(NORTH|SUD|EAST|WEST)*\\)").matcher(percept);
+					if (m.matches())
+					{
+						switch (m.group(1))
+						{
+						case "NORTH":
+							orientationOfTheRobot = Orientation.NORTH;
+							break;
+						case "EAST":
+							orientationOfTheRobot = Orientation.EAST;
+							break;
+						case "WEST":
+							orientationOfTheRobot = Orientation.WEST;
+							break;
+						case "SUD":
+							orientationOfTheRobot = Orientation.SUD;
+							break;
+						default:
+							break;
+						}
+						System.out.println("robot is orientated at " + orientationOfTheRobot);
+					}
+				}
+				else if (perceptName.equals("SIZE"))
+				{
+					Matcher m = Pattern.compile("\\(\\s*SIZE\\s+([0-9]+)\\s+([0-9]+)\\s*\\)").matcher(percept);
+					if (m.matches())
+					{
+						System.out.println("The size of the grid is " + m.group(1) + "," + m.group(2));
+						Environment.widthOfTheGrid = Integer.parseInt(m.group(1));
+						Environment.heightOfTheGrid = Integer.parseInt(m.group(2));
+					}
+				}
+				else
+				{
+					if (percept.contains("DIRT"))
+					{
+						Matcher m1 = Pattern.compile("\\(\\s*AT\\sDIRT\\s+([0-9]+)\\s+([0-9]+)\\s*\\)")
+								.matcher(percept);
+						if (m1.matches())
+						{
+							System.out.println("dirt is at " + m1.group(1) + "x" + m1.group(2));
+							locationOfDirts.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
+						}
+					}
+					else if (percept.contains("OBSTACLE"))
+					{
+						Matcher m1 = Pattern.compile("\\(\\s*AT\\sOBSTACLE\\s+([0-9]+)\\s+([0-9]+)\\s*\\)")
+								.matcher(percept);
+						if (m1.matches())
+						{
+							System.out.println("obstacle is at " + m1.group(1) + "," + m1.group(2));
+							Environment.locationOfObstacles.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
+						}
+					}
+					else
+					{
+						System.out.println("other percept:" + percept);
+					}
+				}
+			}
+			else
+			{
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
+		environmentState = new EnvironmentState(locationOfTheRobot, orientationOfTheRobot, locationOfDirts, statusOfTheRobot);
 	}
-	
-	public String nextAction(Collection<String> percepts) {
+
+	public String nextAction(Collection<String> percepts)
+	{
 		System.out.print("perceiving:");
-		for(String percept:percepts) {
+		for (String percept : percepts)
+		{
 			System.out.print("'" + percept + "', ");
 		}
 		System.out.println("");
 		return "GO";
+	}
+
+	public static boolean isMac()
+	{
+		return (OS.indexOf("mac") >= 0);
 	}
 
 }
