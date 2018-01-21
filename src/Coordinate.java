@@ -1,4 +1,3 @@
-
 public class Coordinate {
 	public int x;
 	public int y;
@@ -39,4 +38,9 @@ public class Coordinate {
 		return true;
 	}
 
+	@Override
+	protected Coordinate clone()
+	{
+		return new Coordinate(x, y);
+	}
 }
