@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.tools.Tool;
+
 @SuppressWarnings("unused")
 public class VacuumCleanerAgent implements Agent
 {
@@ -19,10 +21,36 @@ public class VacuumCleanerAgent implements Agent
 	private Orientation orientationOfTheRobot;
 	private List<Coordinate> locationOfDirts = new ArrayList<Coordinate>();
 	private boolean statusOfTheRobot;
-	
+
 	private EnvironmentState environmentState;
 
+	private enum SearchState
+	{
+		INITIAL, DIRTS, RETURNHOME
+	}
+
 	public void init(Collection<String> percepts)
+	{
+		setupEnvironment(percepts);
+	}
+
+	public String nextAction(Collection<String> percepts)
+	{
+		System.out.print("perceiving:");
+		for (String percept : percepts)
+		{
+			System.out.print("'" + percept + "', ");
+		}
+		System.out.println("");
+		return "GO";
+	}
+
+	public static boolean isMac()
+	{
+		return (OS.indexOf("mac") >= 0);
+	}
+
+	private void setupEnvironment(Collection<String> percepts)
 	{
 		/*
 		 * Possible percepts are: - "(SIZE x y)" denoting the size of the environment,
@@ -47,7 +75,8 @@ public class VacuumCleanerAgent implements Agent
 					if (m.matches())
 					{
 						System.out.println("robot is at " + m.group(1) + "," + m.group(2));
-						Environment.homeLocation = new Coordinate(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)));
+						Environment.homeLocation = new Coordinate(Integer.parseInt(m.group(1)),
+								Integer.parseInt(m.group(2)));
 						locationOfTheRobot = Environment.homeLocation.clone();
 					}
 				}
@@ -67,8 +96,8 @@ public class VacuumCleanerAgent implements Agent
 						case "WEST":
 							orientationOfTheRobot = Orientation.WEST;
 							break;
-						case "SUD":
-							orientationOfTheRobot = Orientation.SUD;
+						case "SOUTH":
+							orientationOfTheRobot = Orientation.SOUTH;
 							break;
 						default:
 							break;
@@ -95,7 +124,8 @@ public class VacuumCleanerAgent implements Agent
 						if (m1.matches())
 						{
 							System.out.println("dirt is at " + m1.group(1) + "x" + m1.group(2));
-							locationOfDirts.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
+							locationOfDirts
+									.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
 						}
 					}
 					else if (percept.contains("OBSTACLE"))
@@ -105,7 +135,8 @@ public class VacuumCleanerAgent implements Agent
 						if (m1.matches())
 						{
 							System.out.println("obstacle is at " + m1.group(1) + "," + m1.group(2));
-							Environment.locationOfObstacles.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
+							Environment.locationOfObstacles
+									.add(new Coordinate(Integer.parseInt(m1.group(1)), Integer.parseInt(m1.group(2))));
 						}
 					}
 					else
@@ -119,23 +150,7 @@ public class VacuumCleanerAgent implements Agent
 				System.err.println("strange percept that does not match pattern: " + percept);
 			}
 		}
-		environmentState = new EnvironmentState(locationOfTheRobot, orientationOfTheRobot, locationOfDirts, statusOfTheRobot);
+		environmentState = new EnvironmentState(locationOfTheRobot, orientationOfTheRobot, locationOfDirts,
+				statusOfTheRobot);
 	}
-
-	public String nextAction(Collection<String> percepts)
-	{
-		System.out.print("perceiving:");
-		for (String percept : percepts)
-		{
-			System.out.print("'" + percept + "', ");
-		}
-		System.out.println("");
-		return "GO";
-	}
-
-	public static boolean isMac()
-	{
-		return (OS.indexOf("mac") >= 0);
-	}
-
 }
