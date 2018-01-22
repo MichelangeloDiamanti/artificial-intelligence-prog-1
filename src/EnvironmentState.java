@@ -221,6 +221,15 @@ public class EnvironmentState
 		return successorState;
 	}
 
+	public boolean isFinalState() {
+		boolean isFinalState = false;
+		// if robot is ON, there is no dirt around and robot is at home location
+		if (statusOfTheRobot == false && locationOfDirts.isEmpty()
+				&& locationOfTheRobot.equals(Environment.homeLocation))
+			isFinalState = true;
+		return isFinalState;	
+	}
+	
 	@Override
 	public String toString()
 	{
@@ -243,4 +252,43 @@ public class EnvironmentState
 		return new EnvironmentState(newLocationOfTheRobot, orientationOfTheRobot, newLocationOfDirts, statusOfTheRobot);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((locationOfDirts == null) ? 0 : locationOfDirts.hashCode());
+		result = prime * result + ((locationOfTheRobot == null) ? 0 : locationOfTheRobot.hashCode());
+		result = prime * result + ((orientationOfTheRobot == null) ? 0 : orientationOfTheRobot.hashCode());
+		result = prime * result + (statusOfTheRobot ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		EnvironmentState other = (EnvironmentState) obj;
+		if (locationOfDirts == null) {
+			if (other.locationOfDirts != null)
+				return false;
+		} else if (!locationOfDirts.equals(other.locationOfDirts))
+			return false;
+		if (locationOfTheRobot == null) {
+			if (other.locationOfTheRobot != null)
+				return false;
+		} else if (!locationOfTheRobot.equals(other.locationOfTheRobot))
+			return false;
+		if (orientationOfTheRobot != other.orientationOfTheRobot)
+			return false;
+		if (statusOfTheRobot != other.statusOfTheRobot)
+			return false;
+		return true;
+	}
+
+	
+	
 }

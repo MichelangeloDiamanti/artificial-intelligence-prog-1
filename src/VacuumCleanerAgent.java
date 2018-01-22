@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,24 +24,37 @@ public class VacuumCleanerAgent implements Agent
 	private List<Coordinate> locationOfDirts = new ArrayList<Coordinate>();
 	private boolean statusOfTheRobot;
 
+	Queue<String> orderedSolution = new LinkedList<String>();
+	
 	private EnvironmentState environmentState;
 
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
 		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
-		List<String> solution = bFirstSearch.searchSolution();
+		//List<String> solution = bFirstSearch.searchSolution();
+		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
+		if(solution == null) System.out.println("There is no solution");
+		else {
+			System.out.println("Solution node: " + solution.getData());
+			
+			List<String> solutionStrings = new ArrayList<String>();
+			while (!solution.isRoot())
+			{
+				solutionStrings.add(solution.getAction());
+				solution = solution.getParent();
+			}
+			for(int i = solutionStrings.size(); i > 0; i--) {
+				orderedSolution.add(solutionStrings.get(i-1));
+			}
+			System.out.println(orderedSolution);
+		}
+		
 	}
 
 	public String nextAction(Collection<String> percepts)
 	{
-		System.out.print("perceiving:");
-		for (String percept : percepts)
-		{
-			System.out.print("'" + percept + "', ");
-		}
-		System.out.println("");
-		return "GO";
+		return orderedSolution.poll();
 	}
 
 	public static boolean isMac()
