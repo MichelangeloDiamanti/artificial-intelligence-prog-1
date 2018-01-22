@@ -24,14 +24,11 @@ public class VacuumCleanerAgent implements Agent
 
 	private EnvironmentState environmentState;
 
-	private enum SearchState
-	{
-		INITIAL, DIRTS, RETURNHOME
-	}
-
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
+		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
+		List<String> solution = bFirstSearch.searchSolution();
 	}
 
 	public String nextAction(Collection<String> percepts)

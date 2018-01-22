@@ -117,36 +117,27 @@ public class EnvironmentState
 
 	public EnvironmentState go()
 	{
-		EnvironmentState successorState = null;
-		if (canGo() == true)
-		{
-			Coordinate nextLocationOfTheRobot = nextLocationOfTheRobot();
-			successorState = new EnvironmentState(nextLocationOfTheRobot, orientationOfTheRobot, locationOfDirts,
-					statusOfTheRobot);
-		}
+		EnvironmentState successorState = this.clone();
+		successorState.locationOfTheRobot = nextLocationOfTheRobot();
 		return successorState;
 	}
 
 	public EnvironmentState turnLeft()
 	{
-		EnvironmentState successorState = null;
+		EnvironmentState successorState = this.clone();
 		switch (orientationOfTheRobot)
 		{
 		case NORTH:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.WEST, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.WEST;
 			break;
 		case SOUTH:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.EAST, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.EAST;
 			break;
 		case EAST:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.NORTH, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.NORTH;
 			break;
 		case WEST:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.SOUTH, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.SOUTH;
 			break;
 
 		default:
@@ -158,24 +149,20 @@ public class EnvironmentState
 
 	public EnvironmentState turnRigth()
 	{
-		EnvironmentState successorState = null;
+		EnvironmentState successorState = this.clone();
 		switch (orientationOfTheRobot)
 		{
 		case NORTH:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.EAST, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.EAST;
 			break;
 		case SOUTH:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.WEST, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.WEST;
 			break;
 		case EAST:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.SOUTH, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.SOUTH;
 			break;
 		case WEST:
-			successorState = new EnvironmentState(locationOfTheRobot, Orientation.NORTH, locationOfDirts,
-					statusOfTheRobot);
+			successorState.orientationOfTheRobot = Orientation.NORTH;
 			break;
 
 		default:
@@ -217,10 +204,8 @@ public class EnvironmentState
 
 	public EnvironmentState removeDirt(Coordinate locationOfDirt)
 	{
-		EnvironmentState successorState = null;
-		locationOfDirts.remove(locationOfDirt);
-		successorState = new EnvironmentState(locationOfTheRobot, orientationOfTheRobot, locationOfDirts,
-				!statusOfTheRobot);
+		EnvironmentState successorState = this.clone();
+		successorState.locationOfDirts.remove(locationOfDirt);
 		return successorState;
 	}
 
@@ -231,10 +216,31 @@ public class EnvironmentState
 
 	public EnvironmentState toogleStatusOfTheRobot()
 	{
-		EnvironmentState successorState = null;
-		successorState = new EnvironmentState(locationOfTheRobot, orientationOfTheRobot, locationOfDirts,
-				!statusOfTheRobot);
+		EnvironmentState successorState = this.clone();
+		successorState.statusOfTheRobot = !successorState.statusOfTheRobot;
 		return successorState;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "EnvironmentState [locationOfTheRobot=" + locationOfTheRobot + ", orientationOfTheRobot="
+				+ orientationOfTheRobot + ", locationOfDirts=" + locationOfDirts + ", statusOfTheRobot="
+				+ statusOfTheRobot + "]";
+	}
+
+	@Override
+	protected EnvironmentState clone()
+	{
+		Coordinate newLocationOfTheRobot;
+		List<Coordinate> newLocationOfDirts;
+		newLocationOfTheRobot = new Coordinate(this.locationOfTheRobot.x, this.locationOfTheRobot.y);
+		newLocationOfDirts = new ArrayList<Coordinate>();
+		for (Coordinate coordinate : locationOfDirts)
+		{
+			newLocationOfDirts.add(new Coordinate(coordinate.x, coordinate.y));
+		}
+		return new EnvironmentState(newLocationOfTheRobot, orientationOfTheRobot, newLocationOfDirts, statusOfTheRobot);
 	}
 
 }
