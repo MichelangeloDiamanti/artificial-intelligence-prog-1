@@ -48,17 +48,17 @@ public class EnvironmentState
 
 	public boolean canGo()
 	{
-		boolean canGo = false;
-		Coordinate nextLocationOfTheRobot = nextLocationOfTheRobot();
-
 		// check if the robot is powered on
 		if (statusOfTheRobot == false)
 			return false;
+		
+		boolean canGo = false;
 
+		Coordinate nextLocationOfTheRobot = nextLocationOfTheRobot();
 		// check if moving the robot keeps it inside the grid
 		if (nextLocationOfTheRobot.x <= Environment.widthOfTheGrid
-				&& nextLocationOfTheRobot.y <= Environment.heightOfTheGrid && nextLocationOfTheRobot.x >= 0
-				&& nextLocationOfTheRobot.y >= 0)
+				&& nextLocationOfTheRobot.y <= Environment.heightOfTheGrid && nextLocationOfTheRobot.x > 0
+				&& nextLocationOfTheRobot.y > 0)
 		{
 
 			// check if moving the robot will make it bump into an obstacle

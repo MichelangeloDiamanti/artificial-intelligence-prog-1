@@ -5,7 +5,7 @@ import java.util.List;
 public class TreeNode<T>
 {
 	private T data = null;
-	private List<TreeNode> children = new ArrayList<>();
+	private List<TreeNode<T>> children = new ArrayList<>();
 	private TreeNode<T> parent = null;
 	private String action;
 
@@ -43,7 +43,7 @@ public class TreeNode<T>
 		this.children.addAll(children);
 	}
 
-	public List<TreeNode> getChildren()
+	public List<TreeNode<T>> getChildren()
 	{
 		return children;
 	}

@@ -73,10 +73,13 @@ public class DepthFirstSearch
 				if(nextState.isFinalState()) return nextNode;
 				if(visitedNodes.contains(nextNode) == false) {
 					visitedNodes.add(nextNode);
-					frontier.push(nextNode);					
+					if(frontier.size() < 1000 )
+						frontier.push(nextNode);	
 				}
 			}			
 		}	
 		return finalState;
 	}
+	
+	
 }
