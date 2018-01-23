@@ -31,9 +31,10 @@ public class VacuumCleanerAgent implements Agent
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
-		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
-		//List<String> solution = bFirstSearch.searchSolution();
-		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
+//		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
+//		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
+		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
+		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
 		if(solution == null) System.out.println("There is no solution");
 		else {
 			System.out.println("Solution node: " + solution.getData());

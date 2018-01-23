@@ -32,7 +32,6 @@ public class BreadthFirstSearch
 				finalState = null;
 				break;
 			}
-			
 			System.out.println("current frontier size: " + frontier.size());
 //			for (TreeNode<EnvironmentState> treeNode : frontier) {
 //				System.out.println(treeNode.getData());
@@ -77,7 +76,6 @@ public class BreadthFirstSearch
 					visitedNodes.add(nextNode);
 					frontier.add(nextNode);					
 				}
-
 			}			
 		}	
 		return finalState;
