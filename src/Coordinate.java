@@ -15,11 +15,12 @@ public class Coordinate {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + x;
-		result = prime * result + y;
-		return result;
+//		final int prime = 271;
+//		int result = 1;
+//		result = prime * result + x;
+//		result = prime * result + y;
+		int tmp = ( y +  ((x+1)/2));
+        return (x +  ( tmp * tmp));
 	}
 
 	@Override

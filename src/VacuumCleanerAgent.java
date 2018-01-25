@@ -48,7 +48,7 @@ public class VacuumCleanerAgent implements Agent
 			for(int i = solutionStrings.size(); i > 0; i--) {
 				orderedSolution.add(solutionStrings.get(i-1));
 			}
-			System.out.println(orderedSolution);
+			System.out.println(orderedSolution.size());
 		}
 		
 	}

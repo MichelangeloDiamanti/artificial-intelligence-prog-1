@@ -33,6 +33,8 @@ public class EnvironmentState
 		// check if SUCK action is legal
 		if (canSuck() == true)
 			legalMoves.add("SUCK");
+		if (canGo() == true)
+			legalMoves.add("GO");
 		// check if TURN_RIGHT/TURN_LEFT is legal
 		if (statusOfTheRobot == true)
 		{
@@ -40,8 +42,7 @@ public class EnvironmentState
 			legalMoves.add("TURN_LEFT");
 		}
 		// check if GO action is legal
-		if (canGo() == true)
-			legalMoves.add("GO");
+		
 
 		return legalMoves;
 	}
