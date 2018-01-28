@@ -69,10 +69,7 @@ public class PriorityTreeNode<T> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((action == null) ? 0 : action.hashCode());
-		result = prime * result + ((children == null) ? 0 : children.hashCode());
 		result = prime * result + ((data == null) ? 0 : data.hashCode());
-		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
 		return result;
 	}
 
@@ -85,31 +82,12 @@ public class PriorityTreeNode<T> {
 		if (getClass() != obj.getClass())
 			return false;
 		PriorityTreeNode other = (PriorityTreeNode) obj;
-		if (action == null) {
-			if (other.action != null)
-				return false;
-		} else if (!action.equals(other.action))
-			return false;
-		if (children == null) {
-			if (other.children != null)
-				return false;
-		} else if (!children.equals(other.children))
-			return false;
 		if (data == null) {
 			if (other.data != null)
 				return false;
 		} else if (!data.equals(other.data))
 			return false;
-		if (parent == null) {
-			if (other.parent != null)
-				return false;
-		} else if (!parent.equals(other.parent))
-			return false;
 		return true;
-	}
-
-	
-
-	
+	}	
 	
 }

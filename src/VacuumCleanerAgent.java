@@ -33,10 +33,12 @@ public class VacuumCleanerAgent implements Agent
 		setupEnvironment(percepts);
 //		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
 //		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
-//		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
-//		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
-		UniformCostSearch uCostSearch = new UniformCostSearch(environmentState);
-		PriorityTreeNode<EnvironmentState> solution = uCostSearch.ucs();
+		
+		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
+		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
+		
+//		UniformCostSearch2 uCostSearch = new UniformCostSearch2(environmentState);
+//		PriorityTreeNode<EnvironmentState> solution = uCostSearch.ucs();
 
 //		if(solution == null) System.out.println("There is no solution");
 //		else System.out.println("solution found");
@@ -47,7 +49,7 @@ public class VacuumCleanerAgent implements Agent
 			List<String> solutionStrings = new ArrayList<String>();
 			while (!solution.isRoot())
 			{
-				solutionStrings.add(solution.getAction().getFirst());
+				solutionStrings.add(solution.getAction());//.getFirst());
 				solution = solution.getParent();
 			}
 			for(int i = solutionStrings.size(); i > 0; i--) {

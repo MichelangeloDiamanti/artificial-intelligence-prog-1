@@ -3,119 +3,98 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Set;
-
-import sun.reflect.generics.tree.Tree;
 
 public class UniformCostSearch
 {
 	EnvironmentState currentState;
 	PriorityTreeNode<EnvironmentState> root;
 	PriorityQueue<PriorityTreeNode<EnvironmentState>> frontier;
-	Set<EnvironmentState> visitedStates;
+	Comparator<PriorityTreeNode<EnvironmentState>> comparator;
+	PriorityTreeNode<EnvironmentState> cState;
+	HashSet<EnvironmentState> explored;
 	
-	public UniformCostSearch(EnvironmentState initialState) {
-		super();
+	public UniformCostSearch(EnvironmentState initialState)
+	{
 		this.currentState = initialState;
-		
 		root = new PriorityTreeNode<EnvironmentState>(currentState);
 		
-		Comparator<PriorityTreeNode<EnvironmentState>> comparator = new MoveComparator();
+		comparator = new MoveComparator();
 		frontier = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
-		
-		frontier.add(root);
-		
-		visitedStates = new HashSet<EnvironmentState>();
+		explored = new HashSet<EnvironmentState>();
 	}
 
 	public PriorityTreeNode<EnvironmentState> ucs(){
-		PriorityTreeNode<EnvironmentState> currentNode = null;
-
-		while(true) 
-		{
-			if(frontier.isEmpty() == true) break;
-			currentNode = frontier.poll();
+		PriorityTreeNode<EnvironmentState> finalState = this.root;
+		
+		frontier.add(finalState);
+		
+		while (true) {
+			if(frontier.isEmpty()) {
+				finalState = null;
+				break;
+			}
 			
-			if(currentNode.getData().isFinalState()) return currentNode;
-			visitedStates.add(currentNode.getData());
+			System.out.println("current frontier size: " + frontier.size());
 			
-			for (Pair<String, Integer> weightedMove : currentNode.getData().weightedMoves()) {
-				
-				EnvironmentState childState = null;
-				PriorityTreeNode<EnvironmentState> childNode = null;
+			cState = frontier.poll();
+			if(cState.getData().isFinalState()) return cState;
 
-				switch (weightedMove.getFirst())
+			currentState = cState.getData();
+			explored.add(currentState);
+
+			List<Pair<String, Integer>> legalMoves = currentState.weightedMoves();
+			for (Pair<String, Integer> move : legalMoves)
+			{
+				EnvironmentState nextState = null;
+				PriorityTreeNode<EnvironmentState> nextNode = null;
+				switch (move.getFirst())
 				{
 				case "TURN_ON":
-					childState = currentState.toogleStatusOfTheRobot();
+					nextState = currentState.toogleStatusOfTheRobot();
 					break;
 				case "TURN_OFF":
-					childState = currentState.toogleStatusOfTheRobot();
+					nextState = currentState.toogleStatusOfTheRobot();
 					break;
 				case "SUCK":
-					childState = currentState.removeDirt(currentState.getLocationOfTheRobot());
+					nextState = currentState.removeDirt(currentState.getLocationOfTheRobot());
 					break;
 				case "TURN_LEFT":
-					childState = currentState.turnLeft();
+					nextState = currentState.turnLeft();
 					break;
 				case "TURN_RIGHT":
-					childState = currentState.turnRigth();
+					nextState = currentState.turnRigth();
 					break;
 				case "GO":
-					childState = currentState.go();
+					nextState = currentState.go();
 					break;
 
 				default:
 					break;
 				}
-			
-				childNode = new PriorityTreeNode<EnvironmentState>(childState, weightedMove);
-				currentNode.addChild(childNode, weightedMove);
 				
-				EnvironmentState childNodeState = childNode.getData();
-
-				PriorityTreeNode<EnvironmentState> node = null;
-				boolean nodeFound = false;
-				List<PriorityTreeNode<EnvironmentState>> list = new ArrayList<PriorityTreeNode<EnvironmentState>>();
+				nextNode = new PriorityTreeNode<EnvironmentState>(nextState, move);
+				cState.addChild(nextNode, move);
 				
-				// iterate the frontier to check if it contains the child node state
-				while(nodeFound == false && frontier.isEmpty() == false) {
-					node = frontier.poll();
-					
-					// as soon as it is found we are sure it is the one with the least path cost
-					// because the frontier is a priority queue, and so we don't need to look further
-					if(node.getData().equals(childNode.getData())) {
-						nodeFound = true;
-						// if we find the node we reinsert to the frontier every popped node
-						// but not the found one, because it may need to be replaced
-						for (PriorityTreeNode<EnvironmentState> priorityTreeNode : list) {
-							frontier.add(priorityTreeNode);
-						}
+				boolean frontierContainsChild = frontier.contains(nextNode);
+				
+				if(explored.contains(nextState) == false && frontierContainsChild == false) {
+					frontier.add(nextNode);					
+				}
+				else if(frontierContainsChild == true) {
+					PriorityQueue<PriorityTreeNode<EnvironmentState>> pq = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
+					PriorityTreeNode<EnvironmentState> node = null;
+					while (frontier.isEmpty() == false) {
+						node = frontier.poll();
+						if(node.equals(nextNode) && node.getAction().getSecond() > nextNode.getAction().getSecond())
+							pq.add(nextNode);
+						else
+							pq.add(node);
 					}
-					if(nodeFound == false) list.add(node);
+					frontier.addAll(pq);
 				}
 
-				// if the node is not found we must add back every node of the list to the frontier
-				if(nodeFound == false) 
-					frontier.addAll(list);
-				
-				
-				if(nodeFound == false && visitedStates.contains(childNodeState) == false)
-					frontier.add(childNode);
-				else if(nodeFound == true) {
-					if(node.getAction().getSecond() > childNode.getAction().getSecond()) 
-						frontier.add(childNode);
-				}
-				else
-					frontier.add(childNode);
-			}
-
-		}
-		
-		return currentNode;
-	}
-
-	
-	
+			}			
+		}	
+		return finalState;
+	}	
 }

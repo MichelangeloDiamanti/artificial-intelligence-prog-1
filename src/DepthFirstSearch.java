@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
@@ -8,46 +8,36 @@ public class DepthFirstSearch
 	TreeNode<EnvironmentState> root;
 	Stack<TreeNode<EnvironmentState>> frontier;
 	TreeNode<EnvironmentState> cState;
-	List<TreeNode<EnvironmentState>> visitedNodes;
-
+	HashSet<EnvironmentState> explored;
+	
 	public DepthFirstSearch(EnvironmentState initialState)
 	{
 		this.currentState = initialState;
 		root = new TreeNode<EnvironmentState>(currentState);
 		frontier = new Stack<TreeNode<EnvironmentState>>();
-		visitedNodes = new ArrayList<TreeNode<EnvironmentState>>();
-		// System.out.println("init: " + initialState.toString());
+		explored = new HashSet<EnvironmentState>();
 	}
 
-	public TreeNode<EnvironmentState> dfs()
-	{
+	public TreeNode<EnvironmentState> dfs(){
 		TreeNode<EnvironmentState> finalState = this.root;
-		if (finalState.getData().isFinalState())
-			return finalState;
-
-		frontier.push(finalState);
-		visitedNodes.add(finalState);
-
-		while (true)
-		{
-			if (frontier.isEmpty())
-			{
+		if(finalState.getData().isFinalState()) return finalState;
+		
+		frontier.add(finalState);
+		
+		while (true) {
+			if(frontier.isEmpty()) {
 				finalState = null;
 				break;
 			}
-			// for (TreeNode<EnvironmentState> treeNode : frontier) {
-			// System.out.println(treeNode.getData());
-			// }
-
+			
+			System.out.println("current frontier size: " + frontier.size());
+			
 			cState = frontier.pop();
-			int length = legthOfTree(cState);
-			System.out.println("current frontier size: " + frontier.size() + " Length: " + length);
-			if (length > 1100)
-			{
-				cState = frontier.pop();
-			}
 			currentState = cState.getData();
 
+			explored.add(currentState);
+
+			
 			List<String> legalMoves = currentState.legalMoves();
 			for (String move : legalMoves)
 			{
@@ -79,32 +69,13 @@ public class DepthFirstSearch
 				}
 				nextNode = new TreeNode<EnvironmentState>(nextState, move);
 				cState.addChild(nextNode, move);
-				if (nextState.isFinalState())
-					return nextNode;
-				if (visitedNodes.contains(nextNode) == false)
-				{
-					visitedNodes.add(nextNode);
-					frontier.push(nextNode);
+				if(explored.contains(nextState) == false && frontier.contains(nextNode) == false) {
+					if(nextState.isFinalState()) return nextNode;
+					frontier.add(nextNode);					
 				}
-			}
-		}
+
+			}			
+		}	
 		return finalState;
-	}
-
-	private int legthOfTree(TreeNode<EnvironmentState> node)
-	{
-		int number = 0;
-		TreeNode<EnvironmentState> currentNode = node.getParent();
-		number++;
-		if (currentNode != null)
-		{
-			while (currentNode.getParent() != null)
-			{
-				number++;
-				currentNode = currentNode.getParent();
-			}
-		}
-
-		return number;
-	}
+	}	
 }
