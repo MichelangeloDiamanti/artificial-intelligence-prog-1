@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class EnvironmentState
@@ -47,6 +48,60 @@ public class EnvironmentState
 		return legalMoves;
 	}
 
+	public List<Pair<String, Integer>> weightedMoves()
+	{
+		List<Pair<String, Integer>> weightedMoves = new ArrayList<>();
+		// compute the cost of TURN_ON
+		if (statusOfTheRobot == false) {
+			Pair<String, Integer> turnOnMove = new Pair<String, Integer>("TURN_ON", 1);
+			weightedMoves.add(turnOnMove);
+		}
+			
+		// compute the cost of TURN_OFF
+		if (statusOfTheRobot == true && locationOfDirts.isEmpty()
+				&& locationOfTheRobot.equals(Environment.homeLocation)) {
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", 1);
+			weightedMoves.add(turnOffMove);
+		}
+		else if(statusOfTheRobot == true && locationOfTheRobot.equals(Environment.homeLocation)) {
+			int cost = 1 + (50 * this.locationOfDirts.size());
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost);
+			weightedMoves.add(turnOffMove);
+		}
+		else if(statusOfTheRobot == true) {
+			int cost = 100 + (50 * this.locationOfDirts.size());
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost);
+			weightedMoves.add(turnOffMove);
+		}
+
+		// compute the cost of SUCK
+		if (statusOfTheRobot == true && locationOfDirts.contains(locationOfTheRobot)) {
+			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 1);
+			weightedMoves.add(suckMove);
+		}
+		else if(statusOfTheRobot == true) {
+			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 5);
+			weightedMoves.add(suckMove);
+		}
+		
+		// compute the cost of GO
+		if (canGo() == true) {
+			Pair<String, Integer> goMove = new Pair<String, Integer>("GO", 1);
+			weightedMoves.add(goMove);
+		}
+
+		// compute the cost of TURN_RIGHT/TURN_LEFT
+		if (statusOfTheRobot == true)
+		{
+			Pair<String, Integer> turnRightMove = new Pair<String, Integer>("TURN_RIGHT", 1);
+			Pair<String, Integer> turnLeftMove = new Pair<String, Integer>("TURN_LEFT", 1);
+			weightedMoves.add(turnRightMove);
+			weightedMoves.add(turnLeftMove);
+		}
+		
+		return weightedMoves;
+	}
+	
 	public boolean canGo()
 	{
 		// check if the robot is powered on
@@ -106,7 +161,7 @@ public class EnvironmentState
 			canTurnOff = true;
 		return canTurnOff;
 	}
-
+	
 	public boolean canSuck()
 	{
 		boolean canSuck = false;
@@ -224,7 +279,7 @@ public class EnvironmentState
 
 	public boolean isFinalState() {
 		boolean isFinalState = false;
-		// if robot is ON, there is no dirt around and robot is at home location
+		// if robot is OFF, there is no dirt around and robot is at home location
 		if (statusOfTheRobot == false && locationOfDirts.isEmpty()
 				&& locationOfTheRobot.equals(Environment.homeLocation))
 			isFinalState = true;
