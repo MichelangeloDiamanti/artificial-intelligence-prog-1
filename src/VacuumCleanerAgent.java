@@ -31,14 +31,35 @@ public class VacuumCleanerAgent implements Agent
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
+		for (int i = 1; i < Environment.widthOfTheGrid; i++)
+		{
+			for (int j = 1; j < Environment.heightOfTheGrid; j++)
+			{
+				Coordinate coordinate = new Coordinate(i, j);
+				if(Environment.locationOfObstacles.contains(coordinate)) {
+					System.out.print("X");
+				} else if (locationOfDirts.contains(coordinate)) {
+					System.out.print("D");
+				} else if (locationOfTheRobot.equals(coordinate)) {
+					System.out.print("R");
+				}else {
+					System.out.print("S");
+				}
+				
+			}
+			System.out.println("");
+		}
 //		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
 //		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
 		
-		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
-		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
+//		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
+//		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
 		
-//		UniformCostSearch2 uCostSearch = new UniformCostSearch2(environmentState);
+//		UniformCostSearch uCostSearch = new UniformCostSearch(environmentState);
 //		PriorityTreeNode<EnvironmentState> solution = uCostSearch.ucs();
+		
+		AStarSearch aStarSearch = new AStarSearch(environmentState);
+		PriorityTreeNode<EnvironmentState> solution = aStarSearch.ass();
 
 //		if(solution == null) System.out.println("There is no solution");
 //		else System.out.println("solution found");
@@ -49,7 +70,7 @@ public class VacuumCleanerAgent implements Agent
 			List<String> solutionStrings = new ArrayList<String>();
 			while (!solution.isRoot())
 			{
-				solutionStrings.add(solution.getAction());//.getFirst());
+				solutionStrings.add(solution.getAction().getFirst());
 				solution = solution.getParent();
 			}
 			for(int i = solutionStrings.size(); i > 0; i--) {

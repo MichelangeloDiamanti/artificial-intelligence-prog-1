@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.sun.org.apache.regexp.internal.REUtil;
+
 public class EnvironmentState
 {
 
@@ -43,7 +45,6 @@ public class EnvironmentState
 			legalMoves.add("TURN_LEFT");
 		}
 		// check if GO action is legal
-		
 
 		return legalMoves;
 	}
@@ -52,40 +53,47 @@ public class EnvironmentState
 	{
 		List<Pair<String, Integer>> weightedMoves = new ArrayList<>();
 		// compute the cost of TURN_ON
-		if (statusOfTheRobot == false) {
+		if (statusOfTheRobot == false)
+		{
 			Pair<String, Integer> turnOnMove = new Pair<String, Integer>("TURN_ON", 1);
 			weightedMoves.add(turnOnMove);
 		}
-			
+
 		// compute the cost of TURN_OFF
 		if (statusOfTheRobot == true && locationOfDirts.isEmpty()
-				&& locationOfTheRobot.equals(Environment.homeLocation)) {
+				&& locationOfTheRobot.equals(Environment.homeLocation))
+		{
 			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", 1);
 			weightedMoves.add(turnOffMove);
 		}
-		else if(statusOfTheRobot == true && locationOfTheRobot.equals(Environment.homeLocation)) {
+		else if (statusOfTheRobot == true && locationOfTheRobot.equals(Environment.homeLocation))
+		{
 			int cost = 1 + (50 * this.locationOfDirts.size());
 			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost);
 			weightedMoves.add(turnOffMove);
 		}
-		else if(statusOfTheRobot == true) {
+		else if (statusOfTheRobot == true)
+		{
 			int cost = 100 + (50 * this.locationOfDirts.size());
 			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost);
 			weightedMoves.add(turnOffMove);
 		}
 
 		// compute the cost of SUCK
-		if (statusOfTheRobot == true && locationOfDirts.contains(locationOfTheRobot)) {
+		if (statusOfTheRobot == true && locationOfDirts.contains(locationOfTheRobot))
+		{
 			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 1);
 			weightedMoves.add(suckMove);
 		}
-		else if(statusOfTheRobot == true) {
+		else if (statusOfTheRobot == true)
+		{
 			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 5);
 			weightedMoves.add(suckMove);
 		}
-		
+
 		// compute the cost of GO
-		if (canGo() == true) {
+		if (canGo() == true)
+		{
 			Pair<String, Integer> goMove = new Pair<String, Integer>("GO", 1);
 			weightedMoves.add(goMove);
 		}
@@ -98,16 +106,88 @@ public class EnvironmentState
 			weightedMoves.add(turnRightMove);
 			weightedMoves.add(turnLeftMove);
 		}
-		
+
 		return weightedMoves;
 	}
-	
+
+	public List<Pair<String, Integer>> euristicWeightedMoves()
+	{
+		int mDistance = manhattanDistance();
+		List<Pair<String, Integer>> weightedMoves = new ArrayList<>();
+		// compute the cost of TURN_ON
+		if (statusOfTheRobot == false)
+		{
+			Pair<String, Integer> turnOnMove = new Pair<String, Integer>("TURN_ON", 1 + mDistance);
+			weightedMoves.add(turnOnMove);
+		}
+
+		// compute the cost of TURN_OFF
+		if (statusOfTheRobot == true && locationOfDirts.isEmpty()
+				&& locationOfTheRobot.equals(Environment.homeLocation))
+		{
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", 1 + mDistance);
+			weightedMoves.add(turnOffMove);
+		}
+		else if (statusOfTheRobot == true && locationOfTheRobot.equals(Environment.homeLocation))
+		{
+			int cost = 1 + (50 * this.locationOfDirts.size());
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost + mDistance);
+			weightedMoves.add(turnOffMove);
+		}
+		else if (statusOfTheRobot == true)
+		{
+			int cost = 100 + (50 * this.locationOfDirts.size());
+			Pair<String, Integer> turnOffMove = new Pair<String, Integer>("TURN_OFF", cost + mDistance);
+			weightedMoves.add(turnOffMove);
+		}
+
+		// compute the cost of SUCK
+		if (statusOfTheRobot == true && locationOfDirts.contains(locationOfTheRobot))
+		{
+			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 1 + mDistance);
+			weightedMoves.add(suckMove);
+		}
+		else if (statusOfTheRobot == true)
+		{
+			Pair<String, Integer> suckMove = new Pair<String, Integer>("SUCK", 5 + mDistance);
+			weightedMoves.add(suckMove);
+		}
+
+		// compute the cost of GO
+		if (canGo() == true)
+		{
+			Pair<String, Integer> goMove = new Pair<String, Integer>("GO", 1 + mDistance);
+			weightedMoves.add(goMove);
+		}
+
+		// compute the cost of TURN_RIGHT/TURN_LEFT
+		if (statusOfTheRobot == true)
+		{
+			Pair<String, Integer> turnRightMove = new Pair<String, Integer>("TURN_RIGHT", 1 + mDistance);
+			Pair<String, Integer> turnLeftMove = new Pair<String, Integer>("TURN_LEFT", 1 + mDistance);
+			weightedMoves.add(turnRightMove);
+			weightedMoves.add(turnLeftMove);
+		}
+
+		return weightedMoves;
+	}
+
+	public int manhattanDistance()
+	{
+		int cost = 0;
+		for (Coordinate loc : locationOfDirts)
+		{
+			cost += Math.abs(locationOfTheRobot.x - loc.x) + Math.abs(locationOfTheRobot.y - loc.y);
+		}
+		return cost;
+	}
+
 	public boolean canGo()
 	{
 		// check if the robot is powered on
 		if (statusOfTheRobot == false)
 			return false;
-		
+
 		boolean canGo = false;
 
 		Coordinate nextLocationOfTheRobot = nextLocationOfTheRobot();
@@ -161,7 +241,7 @@ public class EnvironmentState
 			canTurnOff = true;
 		return canTurnOff;
 	}
-	
+
 	public boolean canSuck()
 	{
 		boolean canSuck = false;
@@ -277,15 +357,16 @@ public class EnvironmentState
 		return successorState;
 	}
 
-	public boolean isFinalState() {
+	public boolean isFinalState()
+	{
 		boolean isFinalState = false;
 		// if robot is OFF, there is no dirt around and robot is at home location
 		if (statusOfTheRobot == false && locationOfDirts.isEmpty()
 				&& locationOfTheRobot.equals(Environment.homeLocation))
 			isFinalState = true;
-		return isFinalState;	
+		return isFinalState;
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -309,7 +390,8 @@ public class EnvironmentState
 	}
 
 	@Override
-	public int hashCode() {
+	public int hashCode()
+	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((locationOfDirts == null) ? 0 : locationOfDirts.hashCode());
@@ -320,7 +402,8 @@ public class EnvironmentState
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(Object obj)
+	{
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -328,15 +411,19 @@ public class EnvironmentState
 		if (getClass() != obj.getClass())
 			return false;
 		EnvironmentState other = (EnvironmentState) obj;
-		if (locationOfDirts == null) {
+		if (locationOfDirts == null)
+		{
 			if (other.locationOfDirts != null)
 				return false;
-		} else if (!locationOfDirts.equals(other.locationOfDirts))
+		}
+		else if (!locationOfDirts.equals(other.locationOfDirts))
 			return false;
-		if (locationOfTheRobot == null) {
+		if (locationOfTheRobot == null)
+		{
 			if (other.locationOfTheRobot != null)
 				return false;
-		} else if (!locationOfTheRobot.equals(other.locationOfTheRobot))
+		}
+		else if (!locationOfTheRobot.equals(other.locationOfTheRobot))
 			return false;
 		if (orientationOfTheRobot != other.orientationOfTheRobot)
 			return false;
@@ -345,6 +432,4 @@ public class EnvironmentState
 		return true;
 	}
 
-	
-	
 }

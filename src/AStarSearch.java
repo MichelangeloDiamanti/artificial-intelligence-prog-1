@@ -3,7 +3,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 
-public class UniformCostSearch
+public class AStarSearch
 {
 	EnvironmentState currentState;
 	PriorityTreeNode<EnvironmentState> root;
@@ -11,37 +11,41 @@ public class UniformCostSearch
 	Comparator<PriorityTreeNode<EnvironmentState>> comparator;
 	PriorityTreeNode<EnvironmentState> cState;
 	HashSet<EnvironmentState> explored;
-	
-	public UniformCostSearch(EnvironmentState initialState)
+
+	public AStarSearch(EnvironmentState initialState)
 	{
 		this.currentState = initialState;
 		root = new PriorityTreeNode<EnvironmentState>(currentState);
-		
+
 		comparator = new MoveComparator();
 		frontier = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
 		explored = new HashSet<EnvironmentState>();
 	}
 
-	public PriorityTreeNode<EnvironmentState> ucs(){
+	public PriorityTreeNode<EnvironmentState> ass()
+	{
 		PriorityTreeNode<EnvironmentState> finalState = this.root;
-		
+
 		frontier.add(finalState);
-		
-		while (true) {
-			if(frontier.isEmpty()) {
+
+		while (true)
+		{
+			if (frontier.isEmpty())
+			{
 				finalState = null;
 				break;
 			}
-			
-			System.out.println("current frontier size: " + frontier.size());
-			
+
+			//System.out.println("current frontier size: " + frontier.size());
+
 			cState = frontier.poll();
-			if(cState.getData().isFinalState()) return cState;
+			if (cState.getData().isFinalState())
+				return cState;
 
 			currentState = cState.getData();
 			explored.add(currentState);
 
-			List<Pair<String, Integer>> legalMoves = currentState.weightedMoves();
+			List<Pair<String, Integer>> legalMoves = currentState.euristicWeightedMoves();
 			for (Pair<String, Integer> move : legalMoves)
 			{
 				EnvironmentState nextState = null;
@@ -70,21 +74,25 @@ public class UniformCostSearch
 				default:
 					break;
 				}
-				
+
 				nextNode = new PriorityTreeNode<EnvironmentState>(nextState, move);
 				cState.addChild(nextNode, move);
-				
+
 				boolean frontierContainsChild = frontier.contains(nextNode);
-				
-				if(explored.contains(nextState) == false && frontierContainsChild == false) {
-					frontier.add(nextNode);					
+
+				if (explored.contains(nextState) == false && frontierContainsChild == false)
+				{
+					frontier.add(nextNode);
 				}
-				else if(frontierContainsChild == true) {
-					PriorityQueue<PriorityTreeNode<EnvironmentState>> pq = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
+				else if (frontierContainsChild == true)
+				{
+					PriorityQueue<PriorityTreeNode<EnvironmentState>> pq = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(
+							comparator);
 					PriorityTreeNode<EnvironmentState> node = null;
-					while (frontier.isEmpty() == false) {
+					while (frontier.isEmpty() == false)
+					{
 						node = frontier.poll();
-						if(node.equals(nextNode) && node.getAction().getSecond() > nextNode.getAction().getSecond())
+						if (node.equals(nextNode) && node.getAction().getSecond() > nextNode.getAction().getSecond())
 							pq.add(nextNode);
 						else
 							pq.add(node);
@@ -92,8 +100,8 @@ public class UniformCostSearch
 					frontier.addAll(pq);
 				}
 
-			}			
-		}	
+			}
+		}
 		return finalState;
-	}	
+	}
 }
