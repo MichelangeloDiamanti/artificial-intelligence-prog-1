@@ -366,6 +366,19 @@ public class EnvironmentState
 			isFinalState = true;
 		return isFinalState;
 	}
+	
+	public boolean isFinalStateWithCost()
+	{
+		boolean isFinalState = false;
+		// if robot is OFF, there is no dirt around and robot is at home location
+		if (statusOfTheRobot == false && locationOfDirts.isEmpty()
+				&& locationOfTheRobot.equals(Environment.homeLocation))
+			isFinalState = true;
+		else if (statusOfTheRobot == false 
+				&& locationOfTheRobot.equals(Environment.homeLocation))
+			isFinalState = true;
+		return isFinalState;
+	}
 
 	@Override
 	public String toString()

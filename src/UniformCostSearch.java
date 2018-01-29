@@ -23,7 +23,10 @@ public class UniformCostSearch
 	}
 
 	public PriorityTreeNode<EnvironmentState> ucs(){
-		PriorityTreeNode<EnvironmentState> finalState = this.root;
+		EnvironmentState initialState = this.root.getData().toogleStatusOfTheRobot();
+
+		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState, new Pair<String, Integer>("TURN_ON", 1));
+		root.addChild(finalState, finalState.getAction());
 		
 		frontier.add(finalState);
 		
@@ -36,7 +39,7 @@ public class UniformCostSearch
 			System.out.println("current frontier size: " + frontier.size());
 			
 			cState = frontier.poll();
-			if(cState.getData().isFinalState()) return cState;
+			if(cState.getData().isFinalStateWithCost()) return cState;
 
 			currentState = cState.getData();
 			explored.add(currentState);

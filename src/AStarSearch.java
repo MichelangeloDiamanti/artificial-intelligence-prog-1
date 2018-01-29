@@ -24,8 +24,10 @@ public class AStarSearch
 
 	public PriorityTreeNode<EnvironmentState> ass()
 	{
-		PriorityTreeNode<EnvironmentState> finalState = this.root;
+		EnvironmentState initialState = this.root.getData().toogleStatusOfTheRobot();
 
+		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState, new Pair<String, Integer>("TURN_ON", 1));
+		root.addChild(finalState, finalState.getAction());
 		frontier.add(finalState);
 
 		while (true)
@@ -36,10 +38,10 @@ public class AStarSearch
 				break;
 			}
 
-			//System.out.println("current frontier size: " + frontier.size());
+			System.out.println("current frontier size: " + frontier.size());
 
 			cState = frontier.poll();
-			if (cState.getData().isFinalState())
+			if (cState.getData().isFinalStateWithCost())
 				return cState;
 
 			currentState = cState.getData();

@@ -31,24 +31,24 @@ public class VacuumCleanerAgent implements Agent
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
-		for (int i = 1; i < Environment.widthOfTheGrid; i++)
-		{
-			for (int j = 1; j < Environment.heightOfTheGrid; j++)
-			{
-				Coordinate coordinate = new Coordinate(i, j);
-				if(Environment.locationOfObstacles.contains(coordinate)) {
-					System.out.print("X");
-				} else if (locationOfDirts.contains(coordinate)) {
-					System.out.print("D");
-				} else if (locationOfTheRobot.equals(coordinate)) {
-					System.out.print("R");
-				}else {
-					System.out.print("S");
-				}
-				
-			}
-			System.out.println("");
-		}
+//		for (int i = 1; i < Environment.widthOfTheGrid; i++)
+//		{
+//			for (int j = 1; j < Environment.heightOfTheGrid; j++)
+//			{
+//				Coordinate coordinate = new Coordinate(i, j);
+//				if(Environment.locationOfObstacles.contains(coordinate)) {
+//					System.out.print("X");
+//				} else if (locationOfDirts.contains(coordinate)) {
+//					System.out.print("D");
+//				} else if (locationOfTheRobot.equals(coordinate)) {
+//					System.out.print("R");
+//				}else {
+//					System.out.print("S");
+//				}
+//				
+//			}
+//			System.out.println("");
+//		}
 //		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
 //		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
 		
@@ -61,8 +61,7 @@ public class VacuumCleanerAgent implements Agent
 		AStarSearch aStarSearch = new AStarSearch(environmentState);
 		PriorityTreeNode<EnvironmentState> solution = aStarSearch.ass();
 
-//		if(solution == null) System.out.println("There is no solution");
-//		else System.out.println("solution found");
+
 		if(solution == null) System.out.println("There is no solution");
 		else {
 			System.out.println("Solution node: " + solution.getData());
@@ -77,6 +76,7 @@ public class VacuumCleanerAgent implements Agent
 				orderedSolution.add(solutionStrings.get(i-1));
 			}
 			System.out.println(orderedSolution.size());
+			System.out.println(orderedSolution);
 		}
 		
 	}
