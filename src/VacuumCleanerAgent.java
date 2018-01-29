@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -17,78 +20,117 @@ public class VacuumCleanerAgent implements Agent
 	 * the first action. Use it to find a plan. Store the plan and just execute it
 	 * step by step in nextAction.
 	 */
-	private static String OS = System.getProperty("os.name").toLowerCase();
-
 	private Coordinate locationOfTheRobot;
 	private Orientation orientationOfTheRobot;
 	private List<Coordinate> locationOfDirts = new ArrayList<Coordinate>();
 	private boolean statusOfTheRobot;
+	private int choice;
 
 	Queue<String> orderedSolution = new LinkedList<String>();
-	
+
 	private EnvironmentState environmentState;
+	
+	public VacuumCleanerAgent(int choice)
+	{
+		this.choice = choice;
+	}
 
 	public void init(Collection<String> percepts)
 	{
 		setupEnvironment(percepts);
-//		for (int i = 1; i < Environment.widthOfTheGrid; i++)
-//		{
-//			for (int j = 1; j < Environment.heightOfTheGrid; j++)
-//			{
-//				Coordinate coordinate = new Coordinate(i, j);
-//				if(Environment.locationOfObstacles.contains(coordinate)) {
-//					System.out.print("X");
-//				} else if (locationOfDirts.contains(coordinate)) {
-//					System.out.print("D");
-//				} else if (locationOfTheRobot.equals(coordinate)) {
-//					System.out.print("R");
-//				}else {
-//					System.out.print("S");
-//				}
-//				
-//			}
-//			System.out.println("");
-//		}
-//		BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
-//		TreeNode<EnvironmentState> solution = bFirstSearch.bfs();
-		
-//		DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
-//		TreeNode<EnvironmentState> solution = dFirstSearch.dfs();
-		
-//		UniformCostSearch uCostSearch = new UniformCostSearch(environmentState);
-//		PriorityTreeNode<EnvironmentState> solution = uCostSearch.ucs();
-		
-		AStarSearch aStarSearch = new AStarSearch(environmentState);
-		PriorityTreeNode<EnvironmentState> solution = aStarSearch.ass();
+		// for (int i = 1; i < Environment.widthOfTheGrid; i++)
+		// {
+		// for (int j = 1; j < Environment.heightOfTheGrid; j++)
+		// {
+		// Coordinate coordinate = new Coordinate(i, j);
+		// if(Environment.locationOfObstacles.contains(coordinate)) {
+		// System.out.print("X");
+		// } else if (locationOfDirts.contains(coordinate)) {
+		// System.out.print("D");
+		// } else if (locationOfTheRobot.equals(coordinate)) {
+		// System.out.print("R");
+		// }else {
+		// System.out.print("S");
+		// }
+		//
+		// }
+		// System.out.println("");
+		// }
+		TreeNode<EnvironmentState> solution = null;
+		PriorityTreeNode<EnvironmentState> prioritySolution = null;
 
+		boolean priority = false;
+		switch (choice)
+		{
+		case 1:
+			BreadthFirstSearch bFirstSearch = new BreadthFirstSearch(environmentState);
+			solution = bFirstSearch.bfs();
+			break;
+		case 2:
+			DepthFirstSearch dFirstSearch = new DepthFirstSearch(environmentState);
+			solution = dFirstSearch.dfs();
+			break;
+		case 3:
+			UniformCostSearch uCostSearch = new UniformCostSearch(environmentState);
+			prioritySolution = uCostSearch.ucs();
+			priority = true;
+			break;
+		case 4:
+			AStarSearch aStarSearch = new AStarSearch(environmentState);
+			prioritySolution = aStarSearch.ass();
+			priority = true;
+			break;
 
-		if(solution == null) System.out.println("There is no solution");
-		else {
-			System.out.println("Solution node: " + solution.getData());
-			
-			List<String> solutionStrings = new ArrayList<String>();
-			while (!solution.isRoot())
-			{
-				solutionStrings.add(solution.getAction().getFirst());
-				solution = solution.getParent();
-			}
-			for(int i = solutionStrings.size(); i > 0; i--) {
-				orderedSolution.add(solutionStrings.get(i-1));
-			}
-			System.out.println(orderedSolution.size());
-			System.out.println(orderedSolution);
+		default:
+			break;
 		}
-		
+
+		if (!priority)
+		{
+			if (solution == null)
+				System.out.println("There is no solution");
+			else
+			{
+				List<String> solutionStrings = new ArrayList<String>();
+				while (!solution.isRoot())
+				{
+					solutionStrings.add(solution.getAction());// .getFirst());
+					solution = solution.getParent();
+				}
+				for (int i = solutionStrings.size(); i > 0; i--)
+				{
+					orderedSolution.add(solutionStrings.get(i - 1));
+				}
+				System.out.println(orderedSolution);
+			}
+		}
+		else
+		{
+			if (prioritySolution == null)
+				System.out.println("There is no solution");
+			else
+			{
+				System.out.println("Solution node: " + prioritySolution.getData());
+
+				List<String> solutionStrings = new ArrayList<String>();
+				while (!prioritySolution.isRoot())
+				{
+					solutionStrings.add(prioritySolution.getAction().getFirst());
+					prioritySolution = prioritySolution.getParent();
+				}
+				for (int i = solutionStrings.size(); i > 0; i--)
+				{
+					orderedSolution.add(solutionStrings.get(i - 1));
+				}
+				System.out.println(orderedSolution);
+			}
+		}
+
 	}
 
 	public String nextAction(Collection<String> percepts)
 	{
 		return orderedSolution.poll();
-	}
-
-	public static boolean isMac()
-	{
-		return (OS.indexOf("mac") >= 0);
 	}
 
 	private void setupEnvironment(Collection<String> percepts)
