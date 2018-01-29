@@ -9,7 +9,8 @@ public class DepthFirstSearch
 	Stack<TreeNode<EnvironmentState>> frontier;
 	TreeNode<EnvironmentState> cState;
 	HashSet<EnvironmentState> explored;
-	
+	int timeComplexity = 0;
+
 	public DepthFirstSearch(EnvironmentState initialState)
 	{
 		this.currentState = initialState;
@@ -18,27 +19,37 @@ public class DepthFirstSearch
 		explored = new HashSet<EnvironmentState>();
 	}
 
-	public TreeNode<EnvironmentState> dfs(){
+	public TreeNode<EnvironmentState> dfs()
+	{
+
+		long startTime = System.currentTimeMillis();
+
 		TreeNode<EnvironmentState> finalState = this.root;
-		if(finalState.getData().isFinalState()) return finalState;
-		
+		if (finalState.getData().isFinalState())
+			return finalState;
+
 		frontier.add(finalState);
-		
-		while (true) {
-			if(frontier.isEmpty()) {
+		int max = 0;
+		while (true)
+		{
+			if (frontier.isEmpty())
+			{
 				finalState = null;
 				break;
 			}
-			
-			System.out.println("current frontier size: " + frontier.size());
-			
+
+			if (frontier.size() > max)
+			{
+				max = frontier.size();
+			}
+
 			cState = frontier.pop();
 			currentState = cState.getData();
 
 			explored.add(currentState);
 
-			
 			List<String> legalMoves = currentState.legalMoves();
+			
 			for (String move : legalMoves)
 			{
 				EnvironmentState nextState = null;
@@ -69,13 +80,29 @@ public class DepthFirstSearch
 				}
 				nextNode = new TreeNode<EnvironmentState>(nextState, move);
 				cState.addChild(nextNode, move);
-				if(explored.contains(nextState) == false && frontier.contains(nextNode) == false) {
-					if(nextState.isFinalState()) return nextNode;
-					frontier.add(nextNode);					
+				if (explored.contains(nextState) == false && frontier.contains(nextNode) == false)
+				{
+					if (nextState.isFinalState())
+					{
+						long stopTime = System.currentTimeMillis();
+						long elapsedTime = stopTime - startTime;
+						System.err.println("Execution time: " + elapsedTime);
+						System.err.println("Time Complexity: " + timeComplexity);
+						System.err.println("Max frontier size: " + max);
+						return nextNode;
+					}
+					frontier.add(nextNode);
+					timeComplexity ++;
 				}
 
-			}			
-		}	
+			}
+		}
+
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+		System.out.println("Execution time: " + elapsedTime);
+		System.out.println("Time Complexity: "+ timeComplexity);
+		System.out.println("Max frontier size: "+ max);
 		return finalState;
-	}	
+	}
 }

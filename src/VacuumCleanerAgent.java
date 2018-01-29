@@ -101,6 +101,7 @@ public class VacuumCleanerAgent implements Agent
 				{
 					orderedSolution.add(solutionStrings.get(i - 1));
 				}
+				System.out.println("Size Soluction: " + orderedSolution.size());
 				System.out.println(orderedSolution);
 			}
 		}
@@ -122,6 +123,7 @@ public class VacuumCleanerAgent implements Agent
 				{
 					orderedSolution.add(solutionStrings.get(i - 1));
 				}
+				System.out.println("Size Soluction: " + orderedSolution.size());
 				System.out.println(orderedSolution);
 			}
 		}

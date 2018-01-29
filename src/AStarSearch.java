@@ -11,6 +11,7 @@ public class AStarSearch
 	Comparator<PriorityTreeNode<EnvironmentState>> comparator;
 	PriorityTreeNode<EnvironmentState> cState;
 	HashSet<EnvironmentState> explored;
+	int timeComplexity = 0;
 
 	public AStarSearch(EnvironmentState initialState)
 	{
@@ -24,9 +25,13 @@ public class AStarSearch
 
 	public PriorityTreeNode<EnvironmentState> ass()
 	{
+		int max = 0;
+		long startTime = System.currentTimeMillis();
+
 		EnvironmentState initialState = this.root.getData().toogleStatusOfTheRobot();
 
-		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState, new Pair<String, Integer>("TURN_ON", 1));
+		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState,
+				new Pair<String, Integer>("TURN_ON", 1));
 		root.addChild(finalState, finalState.getAction());
 		frontier.add(finalState);
 
@@ -38,16 +43,27 @@ public class AStarSearch
 				break;
 			}
 
-			System.out.println("current frontier size: " + frontier.size());
+			if (frontier.size() > max)
+			{
+				max = frontier.size();
+			}
 
 			cState = frontier.poll();
 			if (cState.getData().isFinalStateWithCost())
+			{
+				long stopTime = System.currentTimeMillis();
+				long elapsedTime = stopTime - startTime;
+				System.err.println("Execution time: " + elapsedTime);
+				System.err.println("Time Complexity: " + timeComplexity);
+				System.err.println("Max frontier size: " + max);
 				return cState;
-
+			}
+//			System.out.println(frontier.size());
 			currentState = cState.getData();
 			explored.add(currentState);
 
 			List<Pair<String, Integer>> legalMoves = currentState.euristicWeightedMoves();
+			
 			for (Pair<String, Integer> move : legalMoves)
 			{
 				EnvironmentState nextState = null;
@@ -85,6 +101,7 @@ public class AStarSearch
 				if (explored.contains(nextState) == false && frontierContainsChild == false)
 				{
 					frontier.add(nextNode);
+					timeComplexity ++;
 				}
 				else if (frontierContainsChild == true)
 				{
@@ -104,6 +121,13 @@ public class AStarSearch
 
 			}
 		}
+
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+		System.out.println("Execution time: " + elapsedTime);
+		System.out.println("Time Complexity: "+ timeComplexity);
+		System.out.println("Max frontier size: "+ max);
+
 		return finalState;
 	}
 }

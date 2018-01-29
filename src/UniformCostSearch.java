@@ -11,40 +11,60 @@ public class UniformCostSearch
 	Comparator<PriorityTreeNode<EnvironmentState>> comparator;
 	PriorityTreeNode<EnvironmentState> cState;
 	HashSet<EnvironmentState> explored;
-	
+	int timeComplexity = 0;
+
 	public UniformCostSearch(EnvironmentState initialState)
 	{
 		this.currentState = initialState;
 		root = new PriorityTreeNode<EnvironmentState>(currentState);
-		
+
 		comparator = new MoveComparator();
 		frontier = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
 		explored = new HashSet<EnvironmentState>();
 	}
 
-	public PriorityTreeNode<EnvironmentState> ucs(){
+	public PriorityTreeNode<EnvironmentState> ucs()
+	{
+		int max = 0;
+		long startTime = System.currentTimeMillis();
+
 		EnvironmentState initialState = this.root.getData().toogleStatusOfTheRobot();
 
-		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState, new Pair<String, Integer>("TURN_ON", 1));
+		PriorityTreeNode<EnvironmentState> finalState = new PriorityTreeNode<EnvironmentState>(initialState,
+				new Pair<String, Integer>("TURN_ON", 1));
 		root.addChild(finalState, finalState.getAction());
-		
+
 		frontier.add(finalState);
-		
-		while (true) {
-			if(frontier.isEmpty()) {
+
+		while (true)
+		{
+			if (frontier.isEmpty())
+			{
 				finalState = null;
 				break;
 			}
-			
-			System.out.println("current frontier size: " + frontier.size());
-			
+
+			if (frontier.size() > max)
+			{
+				max = frontier.size();
+			}
+
 			cState = frontier.poll();
-			if(cState.getData().isFinalStateWithCost()) return cState;
+			if (cState.getData().isFinalStateWithCost())
+			{
+				long stopTime = System.currentTimeMillis();
+				long elapsedTime = stopTime - startTime;
+				System.err.println("Execution time: " + elapsedTime);
+				System.err.println("Time Complexity: " + timeComplexity);
+				System.err.println("Max frontier size: " + max);
+				return cState;
+			}
 
 			currentState = cState.getData();
 			explored.add(currentState);
 
 			List<Pair<String, Integer>> legalMoves = currentState.weightedMoves();
+
 			for (Pair<String, Integer> move : legalMoves)
 			{
 				EnvironmentState nextState = null;
@@ -73,21 +93,26 @@ public class UniformCostSearch
 				default:
 					break;
 				}
-				
+
 				nextNode = new PriorityTreeNode<EnvironmentState>(nextState, move);
 				cState.addChild(nextNode, move);
-				
+
 				boolean frontierContainsChild = frontier.contains(nextNode);
-				
-				if(explored.contains(nextState) == false && frontierContainsChild == false) {
-					frontier.add(nextNode);					
+
+				if (explored.contains(nextState) == false && frontierContainsChild == false)
+				{
+					frontier.add(nextNode);
+					timeComplexity ++;
 				}
-				else if(frontierContainsChild == true) {
-					PriorityQueue<PriorityTreeNode<EnvironmentState>> pq = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(comparator);
+				else if (frontierContainsChild == true)
+				{
+					PriorityQueue<PriorityTreeNode<EnvironmentState>> pq = new PriorityQueue<PriorityTreeNode<EnvironmentState>>(
+							comparator);
 					PriorityTreeNode<EnvironmentState> node = null;
-					while (frontier.isEmpty() == false) {
+					while (frontier.isEmpty() == false)
+					{
 						node = frontier.poll();
-						if(node.equals(nextNode) && node.getAction().getSecond() > nextNode.getAction().getSecond())
+						if (node.equals(nextNode) && node.getAction().getSecond() > nextNode.getAction().getSecond())
 							pq.add(nextNode);
 						else
 							pq.add(node);
@@ -95,8 +120,9 @@ public class UniformCostSearch
 					frontier.addAll(pq);
 				}
 
-			}			
-		}	
+			}
+		}
+
 		return finalState;
-	}	
+	}
 }

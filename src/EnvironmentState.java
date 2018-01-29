@@ -112,7 +112,13 @@ public class EnvironmentState
 
 	public List<Pair<String, Integer>> euristicWeightedMoves()
 	{
-		int mDistance = manhattanDistance();
+		List<Coordinate> newCoord = new ArrayList<Coordinate>();
+		for (Coordinate coordinate : locationOfDirts)
+		{
+			newCoord.add(coordinate.clone());
+		}
+		int mDistance = manhattanDistance(locationOfTheRobot, newCoord);
+//		int mDistance = manhattanDistance();
 		List<Pair<String, Integer>> weightedMoves = new ArrayList<>();
 		// compute the cost of TURN_ON
 		if (statusOfTheRobot == false)
@@ -171,13 +177,43 @@ public class EnvironmentState
 
 		return weightedMoves;
 	}
-
+	
 	public int manhattanDistance()
 	{
 		int cost = 0;
 		for (Coordinate loc : locationOfDirts)
 		{
 			cost += Math.abs(locationOfTheRobot.x - loc.x) + Math.abs(locationOfTheRobot.y - loc.y);
+		}
+		return cost;
+	}
+
+	public int manhattanDistance(Coordinate currentLocation, List<Coordinate> listDirts)
+	{
+		int cost = 0;
+		int minDistance = 9999;
+		Coordinate currentMin = null;
+		if (!listDirts.isEmpty())
+		{
+			for (Coordinate coordinate : listDirts)
+			{
+				int distance = Math.abs(currentLocation.x - coordinate.x) + Math.abs(currentLocation.y - coordinate.y);
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+					currentMin = coordinate.clone();
+				}
+			}
+			listDirts.remove(currentMin);
+			if (!listDirts.isEmpty())
+				cost += manhattanDistance(currentMin, listDirts);
+//			else
+//			{
+//
+//				cost += Math.abs(currentMin.x - Environment.homeLocation.x)
+//						+ Math.abs(currentMin.y - Environment.homeLocation.y);
+//			}
+			cost += Math.abs(currentLocation.x - currentMin.x) + Math.abs(currentLocation.y - currentMin.y);
 		}
 		return cost;
 	}
@@ -366,7 +402,7 @@ public class EnvironmentState
 			isFinalState = true;
 		return isFinalState;
 	}
-	
+
 	public boolean isFinalStateWithCost()
 	{
 		boolean isFinalState = false;
@@ -374,8 +410,7 @@ public class EnvironmentState
 		if (statusOfTheRobot == false && locationOfDirts.isEmpty()
 				&& locationOfTheRobot.equals(Environment.homeLocation))
 			isFinalState = true;
-		else if (statusOfTheRobot == false 
-				&& locationOfTheRobot.equals(Environment.homeLocation))
+		else if (statusOfTheRobot == false && locationOfTheRobot.equals(Environment.homeLocation))
 			isFinalState = true;
 		return isFinalState;
 	}
